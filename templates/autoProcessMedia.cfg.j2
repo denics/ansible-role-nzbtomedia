@@ -23,7 +23,7 @@
     # Enable/Disable logging git output to debug nzbtomedia.log (helpful to track down update failures.)
     log_git = 0
     # Set to the directory where your ffmpeg/ffprobe executables are located
-    ffmpeg_path =
+    ffmpeg_path = /usr/bin/
     # Enable/Disable media file checking using ffprobe.
     check_media = 1
     # Enable/Disable a safety check to ensure we don't process all downloads in the default_downloadDirectories by mistake.
@@ -37,6 +37,94 @@
     ionice_class = 2
     # Set the ionice scheduling class data. This defines the class data, if the class accepts an argument. For real time and best-effort, 0-7 is valid data.
     ionice_classdata = 4
+
+[Network]
+    # Enter Mount points as LocalPath,RemotePath and separate each pair with '|'
+    # e.g. MountPoints = /volume1/Public/,E:\|/volume2/share/,\\NAS\
+    mount_points = 
+
+[Nzb]
+    ###### clientAgent - Supported clients: sabnzbd, nzbget
+    clientAgent = sabnzbd
+    ###### SabNZBD (You must edit this if your using nzbToMedia.py with SabNZBD)
+{% if sabnzbd_enabled is defined and sabnzbd_enabled %}
+    sabnzbd_host = localhost
+    sabnzbd_port = {{ sabnzbd_port }}
+    sabnzbd_apikey = {{ sab_apikey }}
+    ###### Enter the default path to your default download directory (non-category downloads). this directory is protected by safe_mode.
+    default_downloadDirectory = {{ htpc_downloads_complete }}
+{% else %}
+    sabnzbd_host = localhost
+    sabnzbd_port = 8080
+    sabnzbd_apikey =
+    ###### Enter the default path to your default download directory (non-category downloads). this directory is protected by safe_mode.
+    default_downloadDirectory =
+{% endif %}
+
+[Torrent]
+    ###### clientAgent - Supported clients: utorrent, transmission, deluge, rtorrent, vuze, other
+{% if deluge_enabled is defined and deluge_enabled %}
+    clientAgent = deluge
+{% else %}
+    clientAgent = other
+{% endif %}
+    ###### useLink - Set to hard for physical links, sym for symbolic links, move to move, and no to not use links (copy)
+    useLink = move
+    ###### outputDirectory - Default output directory (categories will be appended as sub directory to outputDirectory)
+{% if deluge_enabled is defined and deluge_enabled %}
+    outputDirectory = {{ htpc_downloads_incomplete }}/process
+{% else %}
+    outputDirectory =
+{% endif %}
+    ###### Enter the default path to your default download directory (non-category downloads). this directory is protected by safe_mode. 
+{% if deluge_enabled is defined and deluge_enabled %}
+    default_downloadDirectory = {{ htpc_downloads_complete }}
+{% else %}
+    default_downloadDirectory =
+{% endif %}   
+    ###### Other categories/labels defined for your downloader. Does not include CouchPotato, SickBeard, HeadPhones, Mylar categories.
+    categories = music_videos,pictures,software,manual
+    ###### A list of categories that you don't want to be flattened (i.e preserve the directory structure when copying/linking.
+    noFlatten = pictures,manual
+    ###### uTorrent Hardlink solution (You must edit this if your using TorrentToMedia.py with uTorrent)
+    uTorrentWEBui = http://localhost:8090/gui/
+    uTorrentUSR = your username
+    uTorrentPWD = your password
+    ###### Transmission (You must edit this if your using TorrentToMedia.py with uTorrent)
+    TransmissionHost = localhost
+    TransmissionPort = 9091
+    TransmissionUSR = your username
+    TransmissionPWD = your password
+    #### Deluge (You must edit this if your using TorrentToMedia.py with deluge. Note that the host/port is for the deluge daemon, not the webui)
+    DelugeHost = localhost
+    DelugePort = 58846
+{% if deluge_enabled is defined and deluge_enabled %}
+    DelugeUSR = localclient
+    DelugePWD = {{ deluged_localclient_password }}
+{% else %}
+    DelugeUSR = your username
+    DelugePWD = your password
+{% endif %}
+    ###### ADVANCED USE - ONLY EDIT IF YOU KNOW WHAT YOU'RE DOING ######
+    deleteOriginal = 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 [CouchPotato]
     #### autoProcessing for Movies
@@ -206,75 +294,10 @@
         ##### Set to path where download client places completed downloads locally for this category
         watch_dir =
 
-[Network]
-    # Enter Mount points as LocalPath,RemotePath and separate each pair with '|'
-    # e.g. MountPoints = /volume1/Public/,E:\|/volume2/share/,\\NAS\
-    mount_points = 
 
-[Nzb]
-    ###### clientAgent - Supported clients: sabnzbd, nzbget
-    clientAgent = sabnzbd
-    ###### SabNZBD (You must edit this if your using nzbToMedia.py with SabNZBD)
-{% if sabnzbd_enabled is defined and sabnzbd_enabled %}
-    sabnzbd_host = localhost
-    sabnzbd_port = {{ sabnzbd_port }}
-    sabnzbd_apikey = {{ sab_apikey }}
-    ###### Enter the default path to your default download directory (non-category downloads). this directory is protected by safe_mode.
-    default_downloadDirectory = {{ htpc_downloads_complete }}
-{% else %}
-    sabnzbd_host = localhost
-    sabnzbd_port = 8080
-    sabnzbd_apikey =
-    ###### Enter the default path to your default download directory (non-category downloads). this directory is protected by safe_mode.
-    default_downloadDirectory =
-{% endif %}
 
-[Torrent]
-    ###### clientAgent - Supported clients: utorrent, transmission, deluge, rtorrent, vuze, other
-{% if deluge_enabled is defined and deluge_enabled %}
-    clientAgent = deluge
-{% else %}
-    clientAgent = other
-{% endif %}
-    ###### useLink - Set to hard for physical links, sym for symbolic links, move to move, and no to not use links (copy)
-    useLink = hard
-    ###### outputDirectory - Default output directory (categories will be appended as sub directory to outputDirectory)
-{% if deluge_enabled is defined and deluge_enabled %}
-    outputDirectory = {{ htpc_downloads_incomplete }}/process
-{% else %}
-    outputDirectory =
-{% endif %}
-    ###### Enter the default path to your default download directory (non-category downloads). this directory is protected by safe_mode. 
-{% if deluge_enabled is defined and deluge_enabled %}
-    default_downloadDirectory = {{ htpc_downloads_complete }}
-{% else %}
-    default_downloadDirectory =
-{% endif %}   
-    ###### Other categories/labels defined for your downloader. Does not include CouchPotato, SickBeard, HeadPhones, Mylar categories.
-    categories = music_videos,pictures,software,manual
-    ###### A list of categories that you don't want to be flattened (i.e preserve the directory structure when copying/linking.
-    noFlatten = pictures,manual
-    ###### uTorrent Hardlink solution (You must edit this if your using TorrentToMedia.py with uTorrent)
-    uTorrentWEBui = http://localhost:8090/gui/
-    uTorrentUSR = your username
-    uTorrentPWD = your password
-    ###### Transmission (You must edit this if your using TorrentToMedia.py with uTorrent)
-    TransmissionHost = localhost
-    TransmissionPort = 9091
-    TransmissionUSR = your username
-    TransmissionPWD = your password
-    #### Deluge (You must edit this if your using TorrentToMedia.py with deluge. Note that the host/port is for the deluge daemon, not the webui)
-    DelugeHost = localhost
-    DelugePort = 58846
-{% if deluge_enabled is defined and deluge_enabled %}
-    DelugeUSR = localclient
-    DelugePWD = {{ deluged_localclient_password }}
-{% else %}
-    DelugeUSR = your username
-    DelugePWD = your password
-{% endif %}
-    ###### ADVANCED USE - ONLY EDIT IF YOU KNOW WHAT YOU'RE DOING ######
-    deleteOriginal = 0
+
+
 
 [Extensions]
     compressedExtensions = .zip,.rar,.7z,.gz,.bz,.tar,.arj,.1,.01,.001
